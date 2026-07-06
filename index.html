@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1457ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="EliteBudget Pro" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="description" content="EliteBudget Pro Ultimate - offline budgeting, accounting, bills, savings, debt, and risk analysis dashboard." />
+  <title>EliteBudget Pro Ultimate</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="accountScreen" class="lock-screen account-screen hidden">
+    <div class="lock-card glass-panel account-card">
+      <div class="brand-mark">EB</div>
+      <h1>EliteBudget Pro</h1>
+      <p>Offline multi-user mode. Each user keeps separate financial data on this device.</p>
+
+      <div id="loginPanel">
+        <label class="account-label">Select User
+          <select id="userSelect"></select>
+        </label>
+        <input id="loginPin" type="password" maxlength="12" placeholder="Enter PIN" autocomplete="off" />
+        <button id="loginUserBtn" class="btn primary full">Login</button>
+        <button id="showCreateUserBtn" class="btn ghost full">Create New User</button>
+      </div>
+
+      <form id="createUserForm" class="hidden">
+        <input name="name" required placeholder="Full name" autocomplete="name" />
+        <input name="businessName" placeholder="Business name optional" />
+        <input name="currency" value="J$" placeholder="Currency symbol" />
+        <input name="pin" required type="password" minlength="4" maxlength="12" placeholder="Create PIN" />
+        <button class="btn primary full" type="submit">Create Account</button>
+        <button id="cancelCreateUserBtn" class="btn ghost full" type="button">Back to Login</button>
+      </form>
+
+      <small>Data is stored locally in this browser. Export backups from Settings before changing devices.</small>
+    </div>
+  </div>
+
+  <div id="lockScreen" class="lock-screen hidden">
+    <div class="lock-card glass-panel">
+      <div class="brand-mark">EB</div>
+      <h1>EliteBudget Pro</h1>
+      <p>Enter your offline PIN to unlock your financial command center.</p>
+      <input id="pinInput" type="password" maxlength="8" placeholder="Enter PIN" autocomplete="off" />
+      <button id="unlockBtn" class="btn primary full">Unlock</button>
+      <button id="resetPinBtn" class="btn ghost full">Switch user</button>
+      <small>Everything stays on this device. No internet required.</small>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-row">
+        <div class="brand-mark">EB</div>
+        <div>
+          <strong>EliteBudget</strong>
+          <span>Pro Ultimate</span>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Main navigation">
+        <button class="nav-btn active" data-page="dashboard">⌁ Dashboard</button>
+        <button class="nav-btn" data-page="transactions">⇄ Transactions</button>
+        <button class="nav-btn" data-page="income">＋ Income</button>
+        <button class="nav-btn" data-page="expenses">− Expenses</button>
+        <button class="nav-btn" data-page="bills">◷ Bills</button>
+        <button class="nav-btn" data-page="budget">◫ Budget</button>
+        <button class="nav-btn" data-page="savings">◇ Savings</button>
+        <button class="nav-btn" data-page="debt">▰ Debt</button>
+        <button class="nav-btn" data-page="risk">⚖ Risk</button>
+        <button class="nav-btn" data-page="accounting">▣ Accounting</button>
+        <button class="nav-btn" data-page="reports">☷ Reports</button>
+        <button class="nav-btn" data-page="settings">⚙ Settings</button>
+      </nav>
+
+      <nav class="nav-list" aria-label="Main navigation">
+    
+</nav>
+
+</aside>
+
+    <main class="main-content">
+      <header class="topbar glass-panel">
+        <button id="menuBtn" class="icon-btn" aria-label="Toggle menu">☰</button>
+        <div class="search-wrap">
+          <span>⌕</span>
+          <input id="globalSearch" type="search" placeholder="Search transactions, bills, accounts, reports..." />
+        </div>
+        <button id="themeToggle" class="icon-btn" title="Toggle theme">◐</button>
+        <button id="installAppBtn" class="icon-btn hidden" title="Install app">⇩</button>
+        <button id="switchUserBtn" class="icon-btn" title="Switch user">⇆</button>
+        <button id="lockBtn" class="icon-btn" title="Lock app">⌘</button>
+        <div class="profile-pill">
+          <span id="profileInitials">AF</span>
+          <div>
+            <strong id="profileNameTop">Antonio</strong>
+            <small id="businessNameTop">EliteBudget Pro</small>
+          </div>
+        </div>
+      </header>
+
+      <section id="searchResults" class="search-results hidden"></section>
+
+      <section class="page active" id="dashboard">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">Offline Financial Command Center</p>
+            <h1>Dashboard Overview</h1>
+          </div>
+          <div class="action-row">
+            <button class="btn secondary" id="seedBtn">Reset Blank Data</button>
+            <button class="btn primary" data-open="transactionModal">Add Manual Transaction</button>
+          </div>
+        </div>
+
+        <div class="kpi-grid" id="kpiGrid"></div>
+
+        <div class="dashboard-grid">
+          <article class="glass-panel chart-card large">
+            <div class="section-title"><h2>Income vs Expenses</h2><span>Monthly cash flow</span></div>
+            <canvas id="cashFlowChart" width="900" height="330"></canvas>
+          </article>
+          <article class="glass-panel chart-card">
+            <div class="section-title"><h2>Category Spend</h2><span>Expense distribution</span></div>
+            <canvas id="categoryChart" width="450" height="330"></canvas>
+          </article>
+          <article class="glass-panel">
+            <div class="section-title"><h2>Smart Recommendations</h2><span>Live analysis</span></div>
+            <div id="recommendations" class="recommendations"></div>
+          </article>
+          <article class="glass-panel">
+            <div class="section-title"><h2>Upcoming Bills</h2><span>Next 30 days</span></div>
+            <div id="upcomingBills" class="mini-list"></div>
+          </article>
+          <article class="glass-panel wide">
+            <div class="section-title"><h2>Recent Transactions</h2><span>Latest activity</span></div>
+            <div id="recentTransactions" class="table-wrap"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="transactions">
+        <div class="page-heading"><div><p class="eyebrow">Money Movement</p><h1>Transaction Center</h1></div><button class="btn primary" data-open="transactionModal">Add Manual Transaction</button></div>
+        <div class="toolbar glass-panel">
+          <input id="transactionSearch" placeholder="Search transactions..." />
+          <select id="transactionFilter"><option value="all">All Types</option><option>income</option><option>expense</option><option>transfer</option><option>bill</option><option>savings</option><option>debt</option></select>
+          <button class="btn secondary" id="exportCsvBtn">Export CSV</button>
+          <label class="btn secondary file-label">Import CSV<input id="importCsvInput" type="file" accept=".csv" hidden /></label>
+        </div>
+        <div class="glass-panel table-wrap" id="transactionsTable"></div>
+      </section>
+
+      <section class="page" id="income">
+        <div class="page-heading"><div><p class="eyebrow">Paycheck Intelligence</p><h1>Income System</h1></div><button class="btn primary" data-open="incomeModal">Add Income</button></div>
+        <div class="two-col">
+          <div class="glass-panel table-wrap" id="incomeTable"></div>
+          <div class="glass-panel" id="incomeSummary"></div>
+        </div>
+        <div class="glass-panel" id="payCalendar" style="margin-top: 18px;"></div>
+      </section>
+
+      <section class="page" id="expenses">
+        <div class="page-heading"><div><p class="eyebrow">Spending Control</p><h1>Expense Management</h1></div><button class="btn primary" data-open="expenseModal">Add Expense</button></div>
+        <div class="toolbar glass-panel"><input id="expenseSearch" placeholder="Search expenses..." /><select id="expenseCategoryFilter"><option value="all">All Categories</option></select></div>
+        <div class="glass-panel table-wrap" id="expensesTable"></div>
+      </section>
+
+      <section class="page" id="bills">
+        <div class="page-heading"><div><p class="eyebrow">Payment Defense</p><h1>Bill Manager</h1></div><button class="btn primary" data-open="billModal">Add Bill</button></div>
+        <div class="dashboard-grid compact"><div class="glass-panel table-wrap wide" id="billsTable"></div><div class="glass-panel" id="billCalendar"></div></div>
+      </section>
+
+      <section class="page" id="budget">
+        <div class="page-heading"><div><p class="eyebrow">Automatic Allocation</p><h1>Budget Engine</h1></div><button class="btn primary" id="generateBudgetBtn">Generate Budget</button></div>
+        <div class="dashboard-grid compact"><div class="glass-panel" id="budgetCards"></div><div class="glass-panel chart-card"><canvas id="budgetChart" width="500" height="350"></canvas></div><div class="glass-panel wide" id="budgetAdvice"></div></div>
+      </section>
+
+      <section class="page" id="savings">
+        <div class="page-heading"><div><p class="eyebrow">Goal Builder</p><h1>Savings Center</h1></div><button class="btn primary" data-open="savingsModal">Add Goal</button></div>
+        <div class="card-grid" id="savingsGrid"></div>
+      </section>
+
+      <section class="page" id="debt">
+        <div class="page-heading"><div><p class="eyebrow">Debt Elimination</p><h1>Debt Center</h1></div><button class="btn primary" data-open="debtModal">Add Debt</button></div>
+        <div class="dashboard-grid compact"><div class="glass-panel table-wrap wide" id="debtTable"></div><div class="glass-panel" id="debtPlan"></div></div>
+      </section>
+
+      <section class="page" id="risk">
+        <div class="page-heading"><div><p class="eyebrow">Decision Analytics</p><h1>Risk / Reward Analyzer</h1></div><button class="btn primary" data-open="riskModal">Analyze Risk</button></div>
+        <div class="dashboard-grid compact"><div class="glass-panel table-wrap wide" id="riskTable"></div><div class="glass-panel" id="riskSummary"></div></div>
+      </section>
+
+      <section class="page" id="accounting">
+        <div class="page-heading"><div><p class="eyebrow">Business Accounting</p><h1>Ledger & Statements</h1></div><button class="btn primary" data-open="journalModal">Add Journal Entry</button></div>
+        <div class="dashboard-grid compact"><div class="glass-panel" id="accountingStatements"></div><div class="glass-panel table-wrap wide" id="ledgerTable"></div></div>
+      </section>
+
+      <section class="page" id="reports">
+        <div class="page-heading"><div><p class="eyebrow">Executive Reports</p><h1>Reports & Forecasts</h1></div><button class="btn primary" id="printReportBtn">Print Report</button></div>
+        <div class="dashboard-grid compact"><div class="glass-panel wide" id="reportPanel"></div><div class="glass-panel" id="forecastPanel"></div></div>
+      </section>
+
+      <section class="page" id="settings">
+        <div class="page-heading"><div><p class="eyebrow">Control Center</p><h1>Settings & Privacy</h1></div></div>
+        <form id="settingsForm" class="glass-panel form-grid settings-form">
+          <label>Name<input name="name" required /></label>
+          <label>Business Name<input name="businessName" /></label>
+          <label>Currency Symbol<input name="currency" maxlength="4" /></label>
+          <label>Country<input name="country" /></label>
+          <label>Default Budget Method<select name="budgetMethod"><option value="50/30/20">50/30/20</option><option value="zero">Zero Based</option><option value="conservative">Conservative</option><option value="aggressive">Aggressive Savings</option><option value="debt">Debt Elimination</option></select></label>
+          <label>Risk Tolerance<select name="riskTolerance"><option>Low</option><option>Medium</option><option>High</option></select></label>
+          <label>Emergency Fund Target<input name="emergencyTarget" type="number" min="0" /></label>
+          <label>Savings Percentage<input name="savingsPercent" type="number" min="0" max="100" /></label>
+          <label>PIN Lock<input name="pin" type="password" maxlength="8" placeholder="Leave blank to keep current" /></label>
+          <div class="form-actions full-span"><button class="btn primary" type="submit">Save Settings</button><button class="btn secondary" type="button" id="exportJsonBtn">Export JSON Backup</button><label class="btn secondary file-label">Import JSON<input type="file" id="importJsonInput" accept=".json" hidden /></label><button class="btn danger" type="button" id="clearDataBtn">Clear All Data</button></div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <div id="modalLayer" class="modal-layer hidden"></div>
+  <div id="toastStack" class="toast-stack"></div>
+
+  <template id="modalTemplate">
+    <div class="modal glass-panel">
+      <div class="modal-header"><h2></h2><button class="icon-btn close-modal">×</button></div>
+      <form class="form-grid modal-form"></form>
+    </div>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
